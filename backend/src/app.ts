@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
-import { prisma } from "./config/prisma";
+import route from "./routes/index.routes";
 
 const app = express();
 const PORT = process.env.PORT ?? 4001;
@@ -9,6 +9,8 @@ const PORT = process.env.PORT ?? 4001;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use(route);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("hi this is from 90's backend");
