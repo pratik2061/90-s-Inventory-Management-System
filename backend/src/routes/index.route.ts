@@ -18,5 +18,11 @@ route.use(checkJwt);
 //Item routes
 route.get("/item/all", itemsController.getAllItems);
 route.post("/item/add", itemsController.addItems);
+route.get("/item/:id", itemsController.getOneItem);
+route.get("/item/search", itemsController.searchItem);
+route.patch("/item/update/:id", itemsController.updateItems);
+route.delete("/item/delete/:id", itemsController.deleteItems);
+
+//
 
 export default route;
