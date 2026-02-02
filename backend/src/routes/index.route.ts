@@ -5,6 +5,7 @@ import {
 } from "../controllers/Auth/auth.controller";
 import { checkJwt } from "../middlewares/checkJwt";
 import { itemsController } from "../controllers/Item/items.controller";
+import { salesController } from "../controllers/Sales/sale.controller";
 
 const route = Router();
 
@@ -23,6 +24,7 @@ route.get("/item/search", itemsController.searchItem);
 route.patch("/item/update/:id", itemsController.updateItems);
 route.delete("/item/delete/:id", itemsController.deleteItems);
 
-//
+//sales route
+route.get('/sales/all',salesController.getAllSales)
 
 export default route;
