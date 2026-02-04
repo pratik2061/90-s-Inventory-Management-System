@@ -16,7 +16,11 @@ export const salesController = {
 
       // Calculate total amount and validate items
       let totalAmount = 0;
-      const itemsToCreate = [];
+      const itemsToCreate = [] as Array<{
+        itemId: string;
+        quantity: number;
+        price: number;
+      }>;
 
       for (const item of items) {
         const dbItem = await prisma.item.findUnique({
@@ -162,10 +166,10 @@ export const salesController = {
   // Get sale by ID
   getSaleById: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const id = req.params.id;
 
       const sale = await prisma.sale.findUnique({
-        where: { id },
+        where: { id: String(id) },
         include: {
           items: {
             include: {
@@ -201,7 +205,7 @@ export const salesController = {
       const { note, paymentMode } = req.body;
 
       const existingSale = await prisma.sale.findUnique({
-        where: { id },
+        where: { id: String(id) },
       });
 
       if (!existingSale) {
@@ -211,7 +215,7 @@ export const salesController = {
       }
 
       const updatedSale = await prisma.sale.update({
-        where: { id },
+        where: { id: String(id) },
         data: {
           note: note !== undefined ? note : existingSale.note,
           paymentMode: paymentMode || existingSale.paymentMode,
