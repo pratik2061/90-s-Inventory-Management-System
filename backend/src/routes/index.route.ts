@@ -8,6 +8,7 @@ import { itemsController } from "../controllers/Item/items.controller";
 import { salesController } from "../controllers/Sales/sale.controller";
 import { customersController } from "../controllers/Customer/customer.controller";
 import { exchangedItemsController } from "../controllers/ExchangeItem/exchangeItem.controller";
+import { checkToken } from "../controllers/checkToken";
 
 const route = Router();
 
@@ -15,6 +16,8 @@ const route = Router();
 route.post("/login", loginController);
 route.post("/logout", logoutController);
 
+//tochecktoken for frontend
+route.get("/verify/token", checkToken);
 //setting middleware to check all routes
 route.use(checkJwt);
 
