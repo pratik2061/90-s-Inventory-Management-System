@@ -1,6 +1,11 @@
+import { useState } from "react";
 import { PlusCircle, ShoppingCart, Calendar } from "lucide-react";
+import Modal from "../modal-template/modalTemplate";
+import SaleCreationForm from "./salesCreationForm";
 
 const Sales = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+
   const sales = [
     {
       id: 1,
@@ -42,7 +47,10 @@ const Sales = () => {
         </div>
 
         {/* Add Sale Button */}
-        <button className="w-full md:w-auto px-6 py-3 bg-amber-500 text-white font-semibold rounded-2xl hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-amber-200/40">
+        <button
+          onClick={() => setModalOpen(true)}
+          className="w-full md:w-auto px-6 py-3 bg-amber-500 text-white font-semibold rounded-2xl hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-amber-200/40"
+        >
           <PlusCircle className="size-5" />
           Add Sale
         </button>
@@ -99,6 +107,15 @@ const Sales = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Sale Creation Modal */}
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Add New Sale"
+      >
+        <SaleCreationForm />
+      </Modal>
     </div>
   );
 };

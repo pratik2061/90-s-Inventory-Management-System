@@ -1,6 +1,10 @@
 import { Package, ShoppingCart, History, PlusCircle } from "lucide-react";
+import Modal from "../modal-template/modalTemplate";
+import { useState } from "react";
+import SaleCreationForm from "../sale/salesCreationForm";
 
 const Dashboard = () => {
+  const [modalOpen, setModalOpen] = useState(false);
   const stats = [
     {
       label: "Total Inventory Items",
@@ -10,7 +14,7 @@ const Dashboard = () => {
     },
     {
       label: "Today's Sales",
-      value: "$3,842",
+      value: "Rs 3,842",
       icon: ShoppingCart,
       color: "text-emerald-600",
     },
@@ -65,11 +69,21 @@ const Dashboard = () => {
 
       {/* Quick Add Sale */}
       <div className="flex justify-end pb-6">
-        <button className="w-full md:w-auto px-8 py-3 bg-amber-500 text-white font-semibold rounded-2xl hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-amber-200/40">
+        <button
+          onClick={() => setModalOpen(true)}
+          className="w-full md:w-auto px-8 py-3 bg-amber-500 text-white font-semibold rounded-2xl hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-amber-200/40"
+        >
           <PlusCircle className="size-5" />
           New Sale
         </button>
       </div>
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Add New Sale"
+      >
+        <SaleCreationForm />
+      </Modal>
 
       {/* Recent Activity */}
       <div className="bg-white border border-[#e2e8e4] rounded-3xl overflow-hidden shadow-sm">

@@ -1,27 +1,34 @@
 import { PlusCircle, Package, Search } from "lucide-react";
+import { useState } from "react";
+import AddItemModal, { type ItemFormData } from "./addItemModal";
 
 const Items = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const handleSave = (data: ItemFormData) => {
+    console.log("Item saved:", data);
+    // TODO: call API to save item
+  };
   const items = [
     {
       id: 1,
       name: "Industrial Gaskets",
       category: "Mechanical",
       stock: 240,
-      price: "$12.50",
+      price: "Rs 1250",
     },
     {
       id: 2,
       name: "Hydraulic Fluid",
       category: "Lubricants",
       stock: 120,
-      price: "$45.00",
+      price: "Rs 4500",
     },
     {
       id: 3,
       name: "Steel Bolts (M8)",
       category: "Fasteners",
       stock: 560,
-      price: "$0.80",
+      price: "RS 80",
     },
   ];
 
@@ -37,19 +44,27 @@ const Items = () => {
         </div>
 
         {/* Add Item Button */}
-        <button className="w-full md:w-auto px-6 py-3 bg-amber-500 text-white font-semibold rounded-2xl hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-amber-200/40">
+        <button
+          onClick={() => setModalOpen(true)}
+          className="w-full md:w-auto px-6 py-3 bg-amber-500 text-white font-semibold rounded-2xl hover:bg-amber-600 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-amber-200/40"
+        >
           <PlusCircle className="size-5" />
           Add Item
         </button>
+        <AddItemModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSave={handleSave}
+        />
       </header>
 
       {/* Search Bar */}
-      <div className="mb-6 flex items-center gap-3 bg-white border border-[#e2e8e4] rounded-2xl px-4 py-3 shadow-sm">
+      <div className="mb-6 w-[30%] flex items-center gap-3 bg-white border border-[#e2e8e4] rounded-2xl px-4 py-3 shadow-sm">
         <Search className="size-5 text-[#6b7280]" />
         <input
           type="text"
           placeholder="Search items..."
-          className="w-full bg-transparent outline-none text-sm placeholder:text-[#9ca3af]"
+          className=" bg-transparent outline-none text-sm placeholder:text-[#9ca3af] w-full"
         />
       </div>
 
