@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { checkToken } from "./api/checkToken";
+import toast from "react-hot-toast";
 
 interface response {
   status: number;
@@ -30,7 +31,7 @@ export const ProtectedRoutes = ({
           setIsAuthenticated(false);
         }
       } catch (error) {
-        console.log("Verification error:", error);
+        toast.error(`${error}`);
         setIsAuthenticated(false);
       }
     };

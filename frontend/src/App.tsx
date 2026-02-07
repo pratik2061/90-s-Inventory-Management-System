@@ -5,6 +5,8 @@ import { ProtectedRoutes } from "./utils/ProtectedRoutes";
 import RootLayout from "./components/layouts/RootLayout";
 import Dashboard from "./components/ui/dashboard/Dashboard";
 import { Toaster } from "react-hot-toast";
+import Items from "./components/ui/item/Items";
+import Sales from "./components/ui/sale/Sale";
 
 function App() {
   const router = createBrowserRouter([
@@ -23,6 +25,14 @@ function App() {
         {
           index: true,
           element: <Dashboard />,
+        },
+        {
+          path: "/items",
+          element: <Items />,
+        },
+        {
+          path: "/sales",
+          element: <Sales />,
         },
       ],
     },
