@@ -7,7 +7,7 @@ export const checkToken = async (req: Request, res: Response) => {
     if (!token) {
       res.status(400).json({
         status: false,
-        message: "No token found",
+        message: "No token found, please login",
       });
     } else {
       const checkToken = verifyToken(token);
@@ -19,7 +19,7 @@ export const checkToken = async (req: Request, res: Response) => {
       } else {
         res.status(200).json({
           status: true,
-          message: "Token found ",
+          message: "Token found",
         });
       }
     }
