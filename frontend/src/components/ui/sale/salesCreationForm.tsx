@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import type { ItemFormData } from "../item/addItemModal";
 import AddItemModal from "../item/addItemModal";
+import toast, { Toaster } from "react-hot-toast";
 
 interface SaleItem extends ItemFormData {
   subtotal: number;
@@ -42,11 +43,26 @@ const SaleCreationForm = () => {
   };
 
   // Navigation
-  const nextStep = () => setStep(step + 1);
+  // const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
-  // Submit
+  // Validation for Step 1
+  const nextStep = () => {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      toast.error("please enter customer name and phone number");
+      return;
+    }
+    setStep(step + 1);
+  };
+
+  // Submit with validation
   const handleSubmit = () => {
+    // Final check to ensure items are added
+    if (items.length === 0) {
+      toast.error("please add at least one sale item");
+      return;
+    }
+
     const saleData = {
       customerName,
       customerPhone,
@@ -55,9 +71,11 @@ const SaleCreationForm = () => {
       totalAmount,
       remark,
     };
+
     console.log("Sale Created:", saleData);
-    alert("Sale Created! Check console for details.");
-    // Reset form
+    toast.success("sales created");
+
+    // Reset logic...
     setStep(1);
     setCustomerName("");
     setCustomerPhone("");
@@ -66,9 +84,8 @@ const SaleCreationForm = () => {
     setRemark("");
     window.location.reload();
   };
-
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-[#f5f5f5]/5 border border-[#c1c1c1]/20 rounded-3xl shadow-xl">
+    <div className="max-w-4xl mx-auto p-6  ">
       <h2 className="text-2xl font-bold text-amber-500 mb-6 shadow-sm py-2 rounded-md pl-4">
         Create New Sale
       </h2>
@@ -81,6 +98,8 @@ const SaleCreationForm = () => {
               Customer Name
             </label>
             <input
+              required={true}
+              aria-required
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
@@ -98,6 +117,8 @@ const SaleCreationForm = () => {
               onChange={(e) => setCustomerPhone(e.target.value)}
               className="w-full px-4 py-3 bg-[#f5f5f5]/10 border border-[#c1c1c1]/20 rounded-xl text-[#1e2923] placeholder:text-[#6d7e74]"
               placeholder="+977 9800000000"
+              required={true}
+              aria-required
             />
           </div>
           <button

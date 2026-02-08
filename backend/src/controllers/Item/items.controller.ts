@@ -4,19 +4,43 @@ import { prisma } from "../../config/prisma";
 export const itemsController = {
   getAllItems: async (req: Request, res: Response) => {
     try {
-      const findAllItems = await prisma.item.findMany();
-      if (findAllItems.length === 0) {
-        res.status(400).json({
-          message: "No any items to show",
-        });
-      } else {
-        res.status(200).json({
-          message: "Items fetched Sucessfully",
-          data: findAllItems,
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const skip = (page - 1) * limit;
+
+      const [items, totalCount] = await Promise.all([
+        prisma.item.findMany({
+          skip: skip,
+          take: limit,
+          orderBy: {
+            createdAt: "desc",
+          },
+        }),
+        prisma.item.count(),
+      ]);
+
+      if (items.length === 0 && page === 1) {
+        return res.status(404).json({
+          message: "No items found in inventory",
+          data: [],
         });
       }
+
+      // 4. Return data along with pagination metadata
+      return res.status(200).json({
+        message: "Items fetched successfully",
+        data: items,
+        pagination: {
+          totalItems: totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+          currentPage: page,
+          itemsPerPage: limit,
+        },
+      });
     } catch (error) {
-      res.status(500).json({
+      console.error("Pagination Error:", error);
+      return res.status(500).json({
         message: "Internal server error",
       });
     }
@@ -80,27 +104,36 @@ export const itemsController = {
   },
   searchItem: async (req: Request, res: Response) => {
     try {
-      const searchterm = req.query.searchterm as string;
+      const { searchterm } = req.query;
+      const term = String(searchterm).trim();
+
       if (!searchterm) {
         res.status(400).json({
           message: "Search term missing",
         });
       }
-      const findItem = await prisma.item.findUnique({
+
+      // Use findMany to return a list of matches
+      const foundItems = await prisma.item.findMany({
         where: {
-          code: searchterm,
+          code: {
+            contains: term,
+            mode: "insensitive",
+          },
         },
       });
-      if (!findItem) {
-        res.status(400).json({
+
+      if (foundItems.length === 0) {
+        res.status(404).json({
           message: "No Items found",
-        });
-      } else {
-        res.status(200).json({
-          message: "Search item found",
-          data: findItem,
+          data: [], // Return empty array to keep frontend stable
         });
       }
+
+      res.status(200).json({
+        message: "Search items found",
+        data: foundItems,
+      });
     } catch (error) {
       res.status(500).json({
         message: "Internal server error",

@@ -5,7 +5,7 @@ import type { errorresponse } from "@/components/ui/login/LoginComponent";
 export const checkToken = async () => {
   try {
     const res = await api.get("/verify/token");
-    return res;
+    return res.data;
   } catch (error) {
     const err = error as errorresponse;
     toast.error(`${err.response.data.message}`);

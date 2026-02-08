@@ -7,6 +7,7 @@ import Dashboard from "./components/ui/dashboard/Dashboard";
 import { Toaster } from "react-hot-toast";
 import Items from "./components/ui/item/Items";
 import Sales from "./components/ui/sale/Sale";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
   const router = createBrowserRouter([
@@ -37,10 +38,14 @@ function App() {
       ],
     },
   ]);
+
+  const queryClient = new QueryClient();
   return (
     <>
-      <RouterProvider router={router} />
-      <Toaster position="top-right" />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <Toaster position="top-right" />
+      </QueryClientProvider>
     </>
   );
 }

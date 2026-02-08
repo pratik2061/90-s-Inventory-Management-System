@@ -25,6 +25,7 @@ const LoginPage = () => {
       })) as response;
 
       toast.success(res.data.message);
+      // localStorage.setItem("token", res.data.message);
       navigate("/");
     } catch (error) {
       const err = error as errorresponse;
