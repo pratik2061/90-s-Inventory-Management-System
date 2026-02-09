@@ -7,9 +7,17 @@ export const ProtectedRoutes = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { data, isLoading } = useCheckToken();
+  const { data, isLoading, isError } = useCheckToken();
 
   if (isLoading) return null;
 
-  return data?.status ? <>{children}</> : <Navigate to="/login" replace />;
+  console.log(data)
+  const isAuthenticated =
+    data && typeof data === "object" && data?.status === true;
+
+  if (isError || !isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
 };

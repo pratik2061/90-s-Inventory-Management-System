@@ -2,11 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { checkToken } from "./checkToken";
 
 interface response {
-  status: number;
-  data: {
-    status: boolean;
-    message: string;
-  };
+  status: boolean;
+  message: string;
 }
 export const useCheckToken = () => {
   return useQuery({
