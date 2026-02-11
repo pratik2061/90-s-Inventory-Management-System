@@ -28,7 +28,7 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   // Step 1 States
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-
+  const [customerId, setCustomerId] = useState("");
   // Step 2 States
   const [availableItems, setAvailableItems] = useState<BackendItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,15 +59,19 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     }
     try {
       setLoading(true);
-      await api.post("/customers", {
+      const res = await api.post("/customers", {
         name: customerName,
         phone: customerPhone,
       });
-      toast.success("Customer ready");
+      if (res.status === 201) {
+        toast.success("Customer ready");
+
+        setCustomerId(res.data.data.id);
+      }
       setStep(2);
     } catch (error: any) {
       if (error.response?.status === 400)
-        setStep(2); // Proceed if exists
+        toast.error(`${error.response.data.message}`);
       else toast.error("Customer error");
     } finally {
       setLoading(false);
@@ -131,7 +135,7 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     try {
       setLoading(true);
       await api.post("/sales", {
-        customerPhone,
+        customerId,
         items: selectedItems.map((si) => ({
           itemId: si.itemId,
           quantity: si.quantity,
@@ -142,6 +146,7 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         note: remark,
       });
       toast.success("Sale completed!");
+      window.location.reload();
       if (onSuccess) onSuccess();
     } catch (error) {
       toast.error("Sale creation failed");

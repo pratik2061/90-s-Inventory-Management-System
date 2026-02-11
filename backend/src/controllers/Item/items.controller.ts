@@ -19,7 +19,6 @@ export const itemsController = {
         }),
         prisma.item.count(),
       ]);
-
       if (items.length === 0 && page === 1) {
         return res.status(404).json({
           message: "No items found in inventory",

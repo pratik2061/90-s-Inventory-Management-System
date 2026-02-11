@@ -14,17 +14,6 @@ export const customersController = {
         });
       }
 
-      // Check if customer with phone already exists
-      const existingCustomer = await prisma.customer.findFirst({
-        where: { phone },
-      });
-
-      if (existingCustomer) {
-        return res.status(400).json({
-          message: "Customer with this phone number already exists",
-        });
-      }
-
       const customer = await prisma.customer.create({
         data: {
           name,

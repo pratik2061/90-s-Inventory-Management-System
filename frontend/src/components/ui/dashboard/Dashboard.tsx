@@ -1,10 +1,63 @@
-import { Package, ShoppingCart, History, PlusCircle } from "lucide-react";
+import {
+  Package,
+  ShoppingCart,
+  History,
+  PlusCircle,
+  Loader2,
+  Box,
+} from "lucide-react";
 import Modal from "../modal-template/modalTemplate";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SaleCreationForm from "../sale/salesCreationForm";
+import toast from "react-hot-toast";
+import { api } from "@/utils/api/ApiInstance";
 
 const Dashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [todaySalesTotal, setTodaySalesTotal] = useState(0);
+  const [recentSales, setRecentSales] = useState<any[]>([]);
+
+  const todayDate = new Date();
+
+  const getTodaySaleLog = async () => {
+    try {
+      setLoading(true);
+
+      // Calculate Start and End of Today for the API query
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+
+      const res = await api.get("/sales", {
+        params: {
+          startDate: startOfToday.toISOString(),
+          endDate: endOfToday.toISOString(),
+          limit: 100, // Fetch all for today to calculate total if needed
+        },
+      });
+
+      const salesData = res.data.data;
+      const totalRevenue = res.data.totalSales;
+
+      setTodaySalesTotal(totalRevenue);
+      setRecentSales(salesData);
+    } catch (error: any) {
+      toast.error(
+        `${error?.response?.data?.message || "Failed to fetch today's sales"}`,
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getTodaySaleLog();
+  }, []);
+
   const stats = [
     {
       label: "Total Inventory Items",
@@ -13,20 +66,12 @@ const Dashboard = () => {
       color: "text-amber-600",
     },
     {
-      label: "Today's Sales",
-      value: "Rs 3,842",
+      label: "Today's Revenue", // Updated Label
+      value: `Rs ${todaySalesTotal.toLocaleString()}`,
       icon: ShoppingCart,
       color: "text-emerald-600",
     },
   ];
-
-  const recentActivity = [
-    { id: 1, item: "Industrial Gaskets", action: "Restocked", qty: "+100" },
-    { id: 2, item: "Hydraulic Fluid", action: "Dispatched", qty: "-20" },
-    { id: 3, item: "Steel Bolts (M8)", action: "Adjustment", qty: "-5" },
-  ];
-
-  const todayDate = new Date();
 
   return (
     <div className="min-h-screen bg-[#f8faf9] p-8 text-[#1f2937] flex-1 w-full">
@@ -37,9 +82,13 @@ const Dashboard = () => {
             System Overview
           </h1>
           <p className="text-[#6b7280] mt-2 font-medium">
-            Inventory status as of{" "}
-            <span className="text-amber-600/80">
-              {todayDate.toDateString()}
+            Daily performance for{" "}
+            <span className="text-amber-600/80 font-bold">
+              {todayDate.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
             </span>
           </p>
         </div>
@@ -58,7 +107,11 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="text-4xl font-bold text-[#1f2937] tracking-tighter">
-              {stat.value}
+              {loading ? (
+                <Loader2 className="animate-spin size-8 text-gray-300" />
+              ) : (
+                stat.value
+              )}
             </div>
             <div className="text-base text-[#6b7280] mt-1 font-medium">
               {stat.label}
@@ -67,7 +120,6 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Quick Add Sale */}
       <div className="flex justify-end pb-6">
         <button
           onClick={() => setModalOpen(true)}
@@ -77,19 +129,25 @@ const Dashboard = () => {
           New Sale
         </button>
       </div>
+
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title="Add New Sale"
       >
-        <SaleCreationForm />
+        <SaleCreationForm
+          onSuccess={() => {
+            setModalOpen(false);
+            getTodaySaleLog();
+          }}
+        />
       </Modal>
 
-      {/* Recent Activity */}
+      {/* Recent Activity Section */}
       <div className="bg-white border border-[#e2e8e4] rounded-3xl overflow-hidden shadow-sm">
         <div className="p-6 border-b border-[#e2e8e4] flex items-center bg-[#f1f5f3]">
           <h2 className="text-lg font-semibold flex items-center gap-3 text-[#1f2937]">
-            <History className="size-5 text-amber-600" /> Recent Log
+            <History className="size-5 text-amber-600" /> Today's Sales Log
           </h2>
         </div>
 
@@ -97,32 +155,72 @@ const Dashboard = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="text-[#6b7280] text-[11px] uppercase tracking-[0.2em] bg-[#f8faf9]">
-                <th className="px-8 py-4">Asset</th>
-                <th className="px-8 py-4">Status</th>
-                <th className="px-8 py-4 text-right">Volume</th>
+                <th className="px-8 py-4">Items</th>
+                <th className="px-8 py-4">Customer</th>
+                <th className="px-8 py-4">Mode</th>
+                <th className="px-8 py-4 text-right">Amount</th>
               </tr>
             </thead>
             <tbody className="text-sm">
-              {recentActivity.map((log) => (
-                <tr
-                  key={log.id}
-                  className="border-t border-[#e2e8e4] hover:bg-amber-50 transition-colors"
-                >
-                  <td className="px-8 py-5 font-medium text-[#1f2937]">
-                    {log.item}
-                  </td>
-                  <td className="px-8 py-5 text-[#6b7280]">{log.action}</td>
-                  <td
-                    className={`px-8 py-5 text-right font-mono font-bold ${
-                      log.qty.startsWith("+")
-                        ? "text-emerald-600"
-                        : "text-rose-600"
-                    }`}
-                  >
-                    {log.qty}
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-10">
+                    <Loader2 className="animate-spin mx-auto text-amber-500" />
                   </td>
                 </tr>
-              ))}
+              ) : recentSales.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="text-center py-20 text-gray-400 font-medium"
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <ShoppingCart className="size-8 opacity-20" />
+                      <p>No sales recorded yet today.</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                recentSales.map((sale) => (
+                  <tr
+                    key={sale.id}
+                    className="border-t border-[#e2e8e4] hover:bg-amber-50 transition-colors group"
+                  >
+                    <td className="px-8 py-5">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-[#1f2937] flex items-center gap-1">
+                          <Box className="size-3 text-amber-500" />
+                          {sale.items
+                            ?.slice(0, 2)
+                            .map((si: any) => si.item.name)
+                            .join(", ")}
+                          {sale.items?.length > 2 && " ..."}
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-mono">
+                          #{sale.id.slice(0, 8).toUpperCase()}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-[#6b7280] font-medium">
+                      {sale.customer?.name || "Walk-in"}
+                    </td>
+                    <td className="px-8 py-5">
+                      <span
+                        className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border ${
+                          sale.paymentMode === "CASH"
+                            ? "bg-blue-50 text-blue-600 border-blue-100"
+                            : "bg-emerald-50 text-emerald-600 border-emerald-100"
+                        }`}
+                      >
+                        {sale.paymentMode}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-right font-mono font-bold text-emerald-600">
+                      Rs {sale.totalAmount.toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

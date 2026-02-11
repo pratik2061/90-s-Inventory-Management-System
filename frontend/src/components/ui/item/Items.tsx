@@ -16,7 +16,7 @@ interface Item {
   createdAt: string;
   updatedAt: string;
 }
-
+export let totalItems: number;
 const Items = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
