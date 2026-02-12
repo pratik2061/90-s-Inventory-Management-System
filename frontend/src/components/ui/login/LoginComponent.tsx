@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { api } from "@/utils/api/ApiInstance";
+import { Eye, EyeOff, ShieldCheck } from "lucide-react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +8,10 @@ export interface response {
   data: { message: string };
 }
 export interface errorresponse {
-  response: { data: { message: string } };
+  response: { 
+    status: number;
+    data: { message: string } 
+  };
 }
 
 const LoginPage = () => {

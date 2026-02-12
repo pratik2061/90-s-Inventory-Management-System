@@ -1,4 +1,3 @@
-import { LayoutDashboard, LogOut, Shirt, Percent } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,15 +10,17 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import toast from "react-hot-toast";
-import type { errorresponse } from "./login/LoginComponent";
 import { api } from "@/utils/api/ApiInstance";
+import { LayoutDashboard, LogOut, Percent, RefreshCw, Shirt } from "lucide-react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import type { errorresponse } from "./login/LoginComponent";
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Items", url: "/items", icon: Shirt },
   { title: "Sales", url: "/sales", icon: Percent },
+  { title: "Exchanges", url: "/exchanges", icon: RefreshCw },
 ];
 
 export function AppSidebar() {

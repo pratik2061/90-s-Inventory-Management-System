@@ -5,7 +5,7 @@ export const exchangedItemsController = {
   // Create a new exchange
   createExchange: async (req: Request, res: Response) => {
     try {
-      const { customerId, originalItemId, newItemId, quantity, note } =
+      const { customerId, originalItemId, newItemId, quantity, note, saleId } =
         req.body;
 
       // Validate required fields
@@ -33,15 +33,9 @@ export const exchangedItemsController = {
         prisma.item.findUnique({ where: { id: newItemId } }),
       ]);
 
-      if (!originalItem) {
+      if (!originalItem || !newItem) {
         return res.status(404).json({
-          message: "Original item not found",
-        });
-      }
-
-      if (!newItem) {
-        return res.status(404).json({
-          message: "New item not found",
+          message: "Item not found",
         });
       }
 
@@ -52,12 +46,32 @@ export const exchangedItemsController = {
         });
       }
 
-      // Create exchange and update inventories in a transaction
+      // Validate sale and saleItem if saleId is provided
+      if (saleId) {
+        const sale = await prisma.sale.findUnique({
+          where: { id: saleId },
+          include: { items: true },
+        });
+
+        if (!sale) {
+          return res.status(404).json({ message: "Sale not found" });
+        }
+
+        const saleItem = sale.items.find((si) => si.itemId === originalItemId);
+        if (!saleItem || saleItem.quantity < quantity) {
+          return res.status(400).json({
+            message: "Invalid original item or quantity for this sale",
+          });
+        }
+      }
+
+      // Create exchange and update everything in a transaction
       const exchange = await prisma.$transaction(async (tx) => {
-        // Create the exchange record
+        // 1. Create the exchange record
         const newExchange = await tx.exchangedItem.create({
           data: {
             customerId,
+            saleId: saleId || null,
             originalItemId,
             newItemId,
             quantity,
@@ -70,7 +84,7 @@ export const exchangedItemsController = {
           },
         });
 
-        // Restore original item quantity
+        // 2. Restore original item inventory quantity (Received back)
         await tx.item.update({
           where: { id: originalItemId },
           data: {
@@ -80,7 +94,7 @@ export const exchangedItemsController = {
           },
         });
 
-        // Deduct new item quantity
+        // 3. Deduct new item inventory quantity
         await tx.item.update({
           where: { id: newItemId },
           data: {
@@ -90,6 +104,58 @@ export const exchangedItemsController = {
           },
         });
 
+        // 4. Update Sale and SaleItems if linked to a sale
+        if (saleId) {
+          // Decrement original sale item quantity
+          const originalSaleItem = await tx.saleItem.findFirst({
+            where: { saleId, itemId: originalItemId },
+          });
+
+          if (originalSaleItem) {
+            if (originalSaleItem.quantity === quantity) {
+              await tx.saleItem.delete({ where: { id: originalSaleItem.id } });
+            } else {
+              await tx.saleItem.update({
+                where: { id: originalSaleItem.id },
+                data: { quantity: { decrement: quantity } },
+              });
+            }
+
+            // Update Sale total amount
+            const priceDifference =
+              (newItem.price - originalSaleItem.price) * quantity;
+            await tx.sale.update({
+              where: { id: saleId },
+              data: {
+                totalAmount: {
+                  increment: priceDifference,
+                },
+              },
+            });
+          }
+
+          // Add or update new sale item
+          const existingNewItem = await tx.saleItem.findFirst({
+            where: { saleId, itemId: newItemId },
+          });
+
+          if (existingNewItem) {
+            await tx.saleItem.update({
+              where: { id: existingNewItem.id },
+              data: { quantity: { increment: quantity } },
+            });
+          } else {
+            await tx.saleItem.create({
+              data: {
+                saleId,
+                itemId: newItemId,
+                quantity: quantity,
+                price: newItem.price,
+              },
+            });
+          }
+        }
+
         return newExchange;
       });
 
@@ -98,6 +164,7 @@ export const exchangedItemsController = {
         data: exchange,
       });
     } catch (error) {
+      console.error(error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -111,6 +178,7 @@ export const exchangedItemsController = {
         page = 1,
         limit = 10,
         customerId,
+        saleId,
         startDate,
         endDate,
       } = req.query;
@@ -122,6 +190,7 @@ export const exchangedItemsController = {
       const where: any = {};
 
       if (customerId) where.customerId = customerId;
+      if (saleId) where.saleId = saleId;
 
       if (startDate || endDate) {
         where.createdAt = {};
