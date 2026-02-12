@@ -90,7 +90,6 @@ export const salesController = {
         data: sale,
       });
     } catch (error) {
-      console.error("Create sale error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -156,7 +155,6 @@ export const salesController = {
         totalSales,
       });
     } catch (error) {
-      console.error("Get all sales error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -191,7 +189,6 @@ export const salesController = {
         data: sale,
       });
     } catch (error) {
-      console.error("Get sale by ID error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -235,7 +232,6 @@ export const salesController = {
         data: updatedSale,
       });
     } catch (error) {
-      console.error("Update sale error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -281,7 +277,6 @@ export const salesController = {
         },
       });
     } catch (error) {
-      console.error("Get sales stats error:", error);
       res.status(500).json({
         message: "Internal server error",
       });

@@ -1,16 +1,10 @@
-import {
-  Package,
-  ShoppingCart,
-  History,
-  PlusCircle,
-  Loader2,
-  Box,
-} from "lucide-react";
+import { ShoppingCart, History, PlusCircle, Loader2, Box } from "lucide-react";
 import Modal from "../modal-template/modalTemplate";
 import { useEffect, useState } from "react";
 import SaleCreationForm from "../sale/salesCreationForm";
 import toast from "react-hot-toast";
 import { api } from "@/utils/api/ApiInstance";
+import { DashboardClock } from "../clock/Clock";
 
 const Dashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -60,12 +54,6 @@ const Dashboard = () => {
 
   const stats = [
     {
-      label: "Total Inventory Items",
-      value: "1,284",
-      icon: Package,
-      color: "text-amber-600",
-    },
-    {
       label: "Today's Revenue", // Updated Label
       value: `Rs ${todaySalesTotal.toLocaleString()}`,
       icon: ShoppingCart,
@@ -74,14 +62,14 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] p-8 text-[#1f2937] flex-1 w-full">
+    <div className="min-h-screen bg-[#f8faf9] p-4 text-[#1f2937] flex-1 w-full">
       {/* Header */}
       <header className="mb-10 flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-amber-600">
             System Overview
           </h1>
-          <p className="text-[#6b7280] mt-2 font-medium">
+          {/* <p className="text-[#6b7280] mt-2 font-medium">
             Daily performance for{" "}
             <span className="text-amber-600/80 font-bold">
               {todayDate.toLocaleDateString("en-US", {
@@ -90,7 +78,7 @@ const Dashboard = () => {
                 year: "numeric",
               })}
             </span>
-          </p>
+          </p> */}
         </div>
       </header>
 
@@ -118,6 +106,9 @@ const Dashboard = () => {
             </div>
           </div>
         ))}
+        <div className="bg-white border border-[#e2e8e4] rounded-3xl p-6 hover:border-amber-300 transition-all shadow-sm hover:shadow-md">
+          <DashboardClock />
+        </div>
       </div>
 
       <div className="flex justify-end pb-6">

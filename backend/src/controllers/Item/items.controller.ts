@@ -9,6 +9,11 @@ export const itemsController = {
 
       const skip = (page - 1) * limit;
 
+      const allItems = await prisma.item.findMany();
+
+      let allQuantity = 0;
+      allItems.map((data) => (allQuantity = data.quantity + allQuantity));
+
       const [items, totalCount] = await Promise.all([
         prisma.item.findMany({
           skip: skip,
@@ -36,9 +41,10 @@ export const itemsController = {
           currentPage: page,
           itemsPerPage: limit,
         },
+        totalItemsInAllPages: allItems.length,
+        allQuantity,
       });
     } catch (error) {
-      console.error("Pagination Error:", error);
       return res.status(500).json({
         message: "Internal server error",
       });
@@ -106,6 +112,11 @@ export const itemsController = {
       const { searchterm } = req.query;
       const term = String(searchterm).trim();
 
+      const allItems = await prisma.item.findMany();
+
+      let allQuantity = 0;
+      allItems.map((data) => (allQuantity = data.quantity + allQuantity));
+
       if (!searchterm) {
         res.status(400).json({
           message: "Search term missing",
@@ -132,6 +143,8 @@ export const itemsController = {
       res.status(200).json({
         message: "Search items found",
         data: foundItems,
+        totalItemsInAllPages: allItems.length,
+        allQuantity,
       });
     } catch (error) {
       res.status(500).json({
@@ -142,53 +155,55 @@ export const itemsController = {
   updateItems: async (req: Request, res: Response) => {
     try {
       const itemId = req.params.id;
+
+      // 1. Verify item exists
       const checkItem = await prisma.item.findUnique({
+        where: { id: String(itemId) },
+      });
+
+      if (!checkItem) {
+        return res.status(404).json({ message: "No item found" });
+      }
+
+      const { name, price, colors, quantity, code } = req.body;
+
+      // 2. Validation
+      if (
+        !name ||
+        price === undefined ||
+        !colors ||
+        quantity === undefined ||
+        !code
+      ) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      // 3. THE FIX: Check if code is taken by ANOTHER item
+      const codeTakenByOther = await prisma.item.findFirst({
         where: {
-          id: String(itemId),
+          code: code,
+          NOT: {
+            id: String(itemId), // <--- "Don't count the item I am currently editing"
+          },
         },
       });
-      if (!checkItem) {
-        res.status(400).json({
-          message: "No items found",
+
+      if (codeTakenByOther) {
+        return res.status(400).json({
+          message: "Error: This code is already assigned to a different item.",
         });
-      } else {
-        const { name, price, colors, quantity, code } = req.body;
-        if (!name || !price || !colors || !quantity || !code) {
-          res.status(400).json({
-            message: "All fields are required to be filled",
-          });
-        }
-        const checkCode = await prisma.item.findMany({
-          where: {
-            code: code,
-          },
-        });
-        if (checkCode.length > 0) {
-          res.status(400).json({
-            messgae: "Error , code already exits.Try searching item",
-          });
-        } else {
-          await prisma.item.update({
-            where: {
-              id: String(itemId),
-            },
-            data: {
-              name,
-              code,
-              price,
-              colors,
-              quantity,
-            },
-          });
-          res.status(200).json({
-            message: "Item updated successfully",
-          });
-        }
       }
-    } catch (error) {
-      res.status(500).json({
-        message: "Internal server Error",
+
+      // 4. Perform update
+      await prisma.item.update({
+        where: { id: String(itemId) },
+        data: { name, code, price, colors, quantity },
       });
+
+      return res.status(200).json({ message: "Item updated successfully" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server Error" });
     }
   },
   deleteItems: async (req: Request, res: Response) => {

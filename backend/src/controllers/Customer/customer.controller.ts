@@ -26,7 +26,6 @@ export const customersController = {
         data: customer,
       });
     } catch (error) {
-      console.error("Create customer error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -82,7 +81,6 @@ export const customersController = {
         },
       });
     } catch (error) {
-      console.error("Get all customers error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -141,7 +139,6 @@ export const customersController = {
         },
       });
     } catch (error) {
-      console.error("Get customer by ID error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -193,7 +190,6 @@ export const customersController = {
         data: updatedCustomer,
       });
     } catch (error) {
-      console.error("Update customer error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -238,7 +234,6 @@ export const customersController = {
         message: "Customer deleted successfully",
       });
     } catch (error) {
-      console.error("Delete customer error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -284,7 +279,6 @@ export const customersController = {
         },
       });
     } catch (error) {
-      console.error("Get customer purchase history error:", error);
       res.status(500).json({
         message: "Internal server error",
       });

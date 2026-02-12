@@ -11,7 +11,6 @@ export const ProtectedRoutes = ({
 
   if (isLoading) return null;
 
-  console.log(data)
   const isAuthenticated =
     data && typeof data === "object" && data?.status === true;
 

@@ -12,6 +12,7 @@ import {
 import Modal from "../modal-template/modalTemplate";
 import SaleCreationForm from "./salesCreationForm";
 import { api } from "@/utils/api/ApiInstance";
+import toast from "react-hot-toast";
 
 // --- Interfaces ---
 interface ItemDetail {
@@ -74,8 +75,8 @@ const Sales: React.FC = () => {
       setTotalRevenue(totalSales);
       setTotalPages(pagData.totalPages);
       setTotalCount(pagData.totalCount);
-    } catch (error) {
-      console.error("Failed to fetch sales:", error);
+    } catch (error: any) {
+      toast.error(`${error.response.data.message}`);
     } finally {
       setLoading(false);
     }
@@ -93,7 +94,7 @@ const Sales: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] p-8 text-[#1f2937] flex-1 w-full">
+    <div className="min-h-screen bg-[#f8faf9] p-4 text-[#1f2937] flex-1 w-full">
       {/* Header */}
       <header className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -115,7 +116,7 @@ const Sales: React.FC = () => {
 
       {/* --- Revenue & Date Filter Card --- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-[#e2e8e4] shadow-sm flex items-center gap-5">
+        <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-[#e2e8e4] shadow-sm flex items-center gap-5 hover:border hover:border-amber-300">
           <div className="p-4 bg-emerald-100 rounded-2xl">
             <TrendingUp className="size-8 text-emerald-600" />
           </div>
@@ -129,7 +130,7 @@ const Sales: React.FC = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-[#e2e8e4] shadow-sm flex flex-col md:flex-row items-center gap-4">
+        <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-[#e2e8e4] shadow-sm flex flex-col md:flex-row items-center gap-4 ">
           <div className="flex-1 w-full">
             <p className="text-[10px] font-bold text-gray-400 uppercase mb-1.5 ml-1">
               From Date

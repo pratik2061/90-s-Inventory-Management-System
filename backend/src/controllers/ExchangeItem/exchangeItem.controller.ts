@@ -98,7 +98,6 @@ export const exchangedItemsController = {
         data: exchange,
       });
     } catch (error) {
-      console.error("Create exchange error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -158,7 +157,6 @@ export const exchangedItemsController = {
         },
       });
     } catch (error) {
-      console.error("Get all exchanges error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -190,7 +188,6 @@ export const exchangedItemsController = {
         data: exchange,
       });
     } catch (error) {
-      console.error("Get exchange by ID error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -230,7 +227,6 @@ export const exchangedItemsController = {
         data: updatedExchange,
       });
     } catch (error) {
-      console.error("Update exchange error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -284,7 +280,6 @@ export const exchangedItemsController = {
         message: "Exchange deleted successfully",
       });
     } catch (error) {
-      console.error("Delete exchange error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
@@ -346,7 +341,6 @@ export const exchangedItemsController = {
         },
       });
     } catch (error) {
-      console.error("Get exchange stats error:", error);
       res.status(500).json({
         message: "Internal server error",
       });
