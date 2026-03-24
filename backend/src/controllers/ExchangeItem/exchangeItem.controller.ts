@@ -9,22 +9,24 @@ export const exchangedItemsController = {
         req.body;
 
       // Validate required fields
-      if (!customerId || !originalItemId || !newItemId || !quantity) {
+      if (!originalItemId || !newItemId || !quantity) {
         return res.status(400).json({
           message:
-            "Customer ID, original item ID, new item ID, and quantity are required",
+            "Original item ID, new item ID, and quantity are required",
         });
       }
 
-      // Validate customer exists
-      const customer = await prisma.customer.findUnique({
-        where: { id: customerId },
-      });
-
-      if (!customer) {
-        return res.status(404).json({
-          message: "Customer not found",
+      // Validate customer exists if provided
+      if (customerId) {
+        const customer = await prisma.customer.findUnique({
+          where: { id: customerId },
         });
+
+        if (!customer) {
+          return res.status(404).json({
+            message: "Customer not found",
+          });
+        }
       }
 
       // Validate items exist
@@ -78,7 +80,6 @@ export const exchangedItemsController = {
             note: note || null,
           },
           include: {
-            customer: true,
             originalItem: true,
             newItem: true,
           },
@@ -204,7 +205,6 @@ export const exchangedItemsController = {
           skip,
           take,
           include: {
-            customer: true,
             originalItem: true,
             newItem: true,
           },
@@ -240,7 +240,6 @@ export const exchangedItemsController = {
       const exchange = await prisma.exchangedItem.findUnique({
         where: { id: String(id) },
         include: {
-          customer: true,
           originalItem: true,
           newItem: true,
         },
@@ -285,7 +284,6 @@ export const exchangedItemsController = {
           note: note !== undefined ? note : existingExchange.note,
         },
         include: {
-          customer: true,
           originalItem: true,
           newItem: true,
         },

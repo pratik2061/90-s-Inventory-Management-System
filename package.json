@@ -1,5 +1,5 @@
 {
-  "name": "90-s-Inventory-Management-System",
+  "name": "90-s-inventory-management-system",
   "version": "1.0.0",
   "description": "",
   "main": "electron/main.js",
@@ -23,6 +23,10 @@
           "package.json",
           ".env"
         ]
+      },
+      {
+        "from": "frontend/dist",
+        "to": "frontend/dist"
       }
     ]
   },

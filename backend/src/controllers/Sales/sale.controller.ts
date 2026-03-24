@@ -5,8 +5,7 @@ export const salesController = {
   // Create a new sale
   createSale: async (req: Request, res: Response) => {
     try {
-      const { customerId, paymentMode, items, note } = req.body;
-
+      const { customerId, paymentMode, items, note, discount } = req.body;
       // Validate required fields
       if (!paymentMode || !items || items.length === 0) {
         return res.status(400).json({
@@ -49,12 +48,17 @@ export const salesController = {
 
       // Create sale with items in a transaction
       const sale = await prisma.$transaction(async (tx) => {
+        const discountAmount = Number(discount);
+        const netAmount = totalAmount - discountAmount;
+
+
         // Create the sale
         const newSale = await tx.sale.create({
           data: {
             customerId: customerId || null,
             paymentMode,
-            totalAmount,
+            totalAmount: netAmount,
+            discount: discountAmount,
             note: note || null,
             items: {
               create: itemsToCreate,
@@ -66,7 +70,6 @@ export const salesController = {
                 item: true,
               },
             },
-            customer: true,
           },
         });
 
@@ -132,7 +135,6 @@ export const salesController = {
                 item: true,
               },
             },
-            customer: true,
           },
           orderBy: {
             createdAt: "desc",
@@ -174,7 +176,6 @@ export const salesController = {
               item: true,
             },
           },
-          customer: true,
         },
       });
 

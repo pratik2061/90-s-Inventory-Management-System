@@ -34,6 +34,7 @@ interface Sale {
     name: string;
   };
   totalAmount: number;
+  discount: number;
   paymentMode: string;
   items: SaleItem[];
   createdAt: string;
@@ -81,7 +82,6 @@ const Sales: React.FC = () => {
 
   const filteredSales = sales.filter(
     (sale) =>
-      sale.customer?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       sale.id.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -202,9 +202,9 @@ const Sales: React.FC = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="text-[#6b7280] text-[10px] font-black uppercase tracking-[0.2em] bg-gray-50/50">
-                <th className="px-8 py-5">Client / Transaction ID</th>
+                <th className="px-8 py-5">Transaction ID</th>
                 <th className="px-8 py-5">Items</th>
-                <th className="px-8 py-5">Gross Amount</th>
+                <th className="px-8 py-5">Total Amount</th>
                 <th className="px-8 py-5">Payment Mode</th>
                 <th className="px-8 py-5">Date</th>
                 <th className="px-8 py-5 text-right">Action</th>
@@ -234,9 +234,6 @@ const Sales: React.FC = () => {
                         </div>
                         <div>
                           <div className="font-black text-[#1f2937] text-base">
-                            {sale.customer?.name || "One-time Customer"}
-                          </div>
-                          <div className="text-[10px] text-gray-400 font-mono font-black uppercase tracking-widest mt-0.5">
                             TX-{sale.id.slice(-8)}
                           </div>
                         </div>
@@ -299,11 +296,8 @@ const Sales: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-black text-[#1f2937] text-lg">
-                        {sale.customer?.name || "Walk-in"}
+                        Invoice #{sale.id.slice(-8)}
                       </h3>
-                      <p className="text-gray-400 font-mono text-xs font-black">
-                        #{sale.id.slice(-8)}
-                      </p>
                     </div>
                   </div>
                   <ChevronRight className="size-5 text-gray-300" />

@@ -52,6 +52,7 @@ model Sale {
   customerId  String?
   paymentMode PaymentMode
   totalAmount Float
+  discount    Float       @default(0)
   note        String?
 
   customer Customer?  @relation(fields: [customerId], references: [id])
@@ -74,14 +75,14 @@ model SaleItem {
 
 model ExchangedItem {
   id             String  @id @default(uuid())
-  customerId     String
+  customerId     String?
   saleId         String? 
   originalItemId String
   newItemId      String
   quantity       Int
   note           String?
 
-  customer     Customer @relation(fields: [customerId], references: [id])
+  customer     Customer? @relation(fields: [customerId], references: [id])
   sale         Sale?    @relation(fields: [saleId], references: [id])
   originalItem Item     @relation("OriginalItem", fields: [originalItemId], references: [id])
   newItem      Item     @relation("NewItem", fields: [newItemId], references: [id])

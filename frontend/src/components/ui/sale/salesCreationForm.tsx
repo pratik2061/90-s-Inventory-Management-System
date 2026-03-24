@@ -3,6 +3,14 @@ import { Plus, X, Loader2, Search, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { api } from "@/utils/api/ApiInstance";
 
+declare global {
+  interface Window {
+    electronAPI?: {
+      printReceipt: (saleData: any) => Promise<{ success: boolean; message: string }>;
+    };
+  }
+}
+
 // Updated interfaces to match backend items
 interface BackendItem {
   id: string;
@@ -22,18 +30,12 @@ interface SaleItem {
 }
 
 const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
-  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-
-  // Step 1 States
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [customerId, setCustomerId] = useState("");
-  // Step 2 States
   const [availableItems, setAvailableItems] = useState<BackendItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<SaleItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [discount, setDiscount] = useState<number>(0);
   const [remark] = useState("");
 
   // Fetch items from backend
@@ -48,35 +50,10 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   };
 
   useEffect(() => {
-    if (step === 2) fetchInventory();
-  }, [step]);
+    fetchInventory();
+  }, []);
 
-  // Handle Step 1: Customer Creation
-  const handleNextStep = async () => {
-    if (!customerName.trim() || !customerPhone.trim()) {
-      toast.error("Enter customer details");
-      return;
-    }
-    try {
-      setLoading(true);
-      const res = await api.post("/customers", {
-        name: customerName,
-        phone: customerPhone,
-      });
-      if (res.status === 201) {
-        toast.success("Customer ready");
 
-        setCustomerId(res.data.data.id);
-      }
-      setStep(2);
-    } catch (error: any) {
-      if (error.response?.status === 400)
-        toast.error(`${error.response.data.message}`);
-      else toast.error("Customer error");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Logic to add an item to the selection
   const toggleItemSelection = (item: BackendItem) => {
@@ -134,8 +111,8 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     if (selectedItems.length === 0) return toast.error("Add at least one item");
     try {
       setLoading(true);
-      await api.post("/sales", {
-        customerId,
+      const res = await api.post("/sales", {
+        customerId: null,
         items: selectedItems.map((si) => ({
           itemId: si.itemId,
           quantity: si.quantity,
@@ -143,11 +120,25 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         })),
         paymentMode: paymentMethod,
         totalAmount,
+        discount,
         note: remark,
       });
+
+      const saleData = res.data.data;
+      if (window.electronAPI?.printReceipt) {
+        const printResult = await window.electronAPI.printReceipt(saleData);
+        if (printResult?.success) {
+          toast.success(printResult.message);
+        } else {
+          toast.error(printResult?.message || "Failed to print receipt");
+        }
+      }
+
       toast.success("Sale completed!");
-      window.location.reload();
-      if (onSuccess) onSuccess();
+      setTimeout(() => {
+        window.location.reload();
+        if (onSuccess) onSuccess();
+      }, 500);
     } catch (error) {
       toast.error("Sale creation failed");
     } finally {
@@ -170,59 +161,8 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         Create New Sale
       </h2>
 
-      {step === 1 ? (
-        <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
-          {/* Customer Inputs (Same as before) */}
-          <div>
-            <label className="block text-sm font-bold text-gray-600 mb-1">
-              Customer Name
-            </label>
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
-              placeholder="Full Name"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-gray-600 mb-1">
-              Phone Number
-            </label>
-            <input
-              type="tel"
-              value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"
-              placeholder="98XXXXXXXX"
-            />
-          </div>
-          <button
-            disabled={loading}
-            className="w-full px-10 py-3 bg-amber-500 text-white rounded-2xl font-bold hover:bg-amber-600 transition-all flex justify-center items-center"
-            onClick={handleNextStep}
-          >
-            {loading ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              "Verify & Continue"
-            )}
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-          {/* Step 2 Header */}
-          <div className="flex justify-between items-center bg-amber-50 p-4 rounded-2xl">
-            <p className="font-bold text-gray-700">
-              Billing to: <span className="text-amber-600">{customerName}</span>
-            </p>
-            <button
-              onClick={() => setStep(1)}
-              className="text-xs font-bold text-gray-400 hover:text-amber-600 underline"
-            >
-              Change Customer
-            </button>
-          </div>
+      <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+
 
           {/* ITEM SEARCH SECTION */}
           <div className="space-y-3">
@@ -319,18 +259,40 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
                 Grand Total
               </p>
               <h3 className="text-3xl font-black">
-                Rs.{totalAmount.toLocaleString()}
+                Rs.{(totalAmount - discount).toLocaleString()}
               </h3>
+              {discount > 0 && (
+                <p className="text-[10px] text-gray-400 font-bold line-through">
+                  Original: Rs.{totalAmount.toLocaleString()}
+                </p>
+              )}
             </div>
-            <div className="flex gap-3 w-full md:w-auto">
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 outline-none font-bold text-sm"
-              >
-                <option value="CASH">CASH</option>
-                <option value="ONLINE">ONLINE</option>
-              </select>
+            <div className="flex gap-3 w-full md:w-auto items-center">
+              <div className="flex flex-col gap-1">
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-1">
+                  Discount
+                </p>
+                <input
+                  type="number"
+                  value={discount}
+                  onChange={(e) => setDiscount(Number(e.target.value) || 0)}
+                  className="w-24 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 outline-none font-bold text-sm text-amber-500"
+                  placeholder="0"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-1">
+                  Payment
+                </p>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 outline-none font-bold text-sm"
+                >
+                  <option value="CASH">CASH</option>
+                  <option value="ONLINE">ONLINE</option>
+                </select>
+              </div>
               <button
                 disabled={loading || selectedItems.length === 0}
                 onClick={handleSubmit}
@@ -346,8 +308,7 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
               </button>
             </div>
           </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

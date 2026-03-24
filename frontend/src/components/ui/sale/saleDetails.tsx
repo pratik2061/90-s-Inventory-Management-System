@@ -1,5 +1,5 @@
 import { api } from "@/utils/api/ApiInstance";
-import { AlertCircle, ArrowLeft, ArrowRight, Calendar, Loader2, Package, RefreshCw, Search, ShoppingCart, User, X } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Calendar, Loader2, Package, RefreshCw, Search, ShoppingCart, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -36,6 +36,7 @@ interface Sale {
   customerId: string;
   paymentMode: "CASH" | "ONLINE";
   totalAmount: number;
+  discount: number;
   note: string | null;
   createdAt: string;
   items: SaleItem[];
@@ -260,10 +261,18 @@ const SaleDetails: React.FC = () => {
                  <h3 className="text-xl font-black text-[#1f2937]">Bill Summary</h3>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Amount</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Bill</p>
                 <p className="text-4xl font-black text-amber-600 tabular-nums">
-                  Rs {sale.totalAmount.toLocaleString()}
+                  Rs {(sale.totalAmount + (sale.discount || 0)).toLocaleString()}
                 </p>
+                {sale.discount > 0 && (
+                  <div className="mt-2 text-right">
+                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Discount: Rs {sale.discount.toLocaleString()}</p>
+                     <p className="text-xl font-black text-gray-800">
+                      Paid: Rs {sale.totalAmount.toLocaleString()}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -369,35 +378,7 @@ const SaleDetails: React.FC = () => {
 
         {/* RIGHT SIDEBAR */}
         <div className="space-y-10">
-          {/* CUSTOMER CARD */}
-          <div className="bg-white rounded-[2.5rem] border border-[#e2e8e4] p-8 shadow-sm hover:border-amber-300 transition-all hover:shadow-xl group">
-             <div className="flex items-center gap-4 mb-6">
-                 <div className="p-4 bg-amber-50 rounded-2xl text-amber-600 group-hover:scale-110 transition-transform">
-                    <User size={24} />
-                 </div>
-                 <h3 className="text-lg font-black text-[#1f2937]">Client Profile</h3>
-              </div>
 
-            <div className="space-y-4">
-              <div>
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Full Name</p>
-                <p className="font-black text-[#1f2937] text-2xl">
-                  {sale.customer?.name || "Anonymous Client"}
-                </p>
-              </div>
-              <div>
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Contact Details</p>
-                <p className="text-base font-bold text-gray-500">
-                  {sale.customer?.phone || "No phone provided"}
-                </p>
-              </div>
-              
-              <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
-                <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Trust Rating</span>
-                <span className="px-2 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black">LOYAL CLIENT</span>
-              </div>
-            </div>
-          </div>
 
           {/* EXCHANGE CARD */}
           <div className="bg-[#1f2937] rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">

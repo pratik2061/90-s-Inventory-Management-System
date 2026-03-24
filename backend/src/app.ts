@@ -21,15 +21,14 @@ app.use(
 
 app.use("/api", route);
 
-app.use(
-  express.static(
-    path.join(__dirname, "../../frontend/dist")
-  )
-)
+const frontendDistPath = process.env.IS_PACKAGED === 'true'
+  ? path.join(__dirname, "../../../frontend/dist")
+  : path.join(__dirname, "../../frontend/dist");
+
+app.use(express.static(frontendDistPath));
+
 app.get(/.*/, (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "../../frontend/dist/index.html")
-  );
+  res.sendFile(path.join(frontendDistPath, "index.html"));
 });
 
 

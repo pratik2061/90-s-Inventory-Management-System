@@ -6,7 +6,6 @@ import {
     Package,
     RefreshCw,
     Search,
-    User,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -73,8 +72,6 @@ const ExchangeList: React.FC = () => {
 
   const filteredExchanges = exchanges.filter(
     (ex) =>
-      ex.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ex.customer.phone.includes(searchQuery) ||
       ex.originalItem.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ex.newItem.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -97,7 +94,7 @@ const ExchangeList: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search customer, phone or item..."
+            placeholder="Search by item name or code..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-white border border-[#e2e8e4] rounded-2xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all shadow-sm font-medium"
@@ -144,11 +141,11 @@ const ExchangeList: React.FC = () => {
               <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-amber-50 rounded-2xl text-amber-600">
-                    <User className="size-6" />
+                    <RefreshCw className="size-6" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800">{ex.customer.name}</h3>
-                    <p className="text-sm text-gray-500">{ex.customer.phone}</p>
+                    <h3 className="font-bold text-gray-800">Exchange Record</h3>
+                    <p className="text-sm text-gray-500">#{ex.id.slice(-8)}</p>
                   </div>
                 </div>
                 <div className="text-right">
