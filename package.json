@@ -1,0 +1,38 @@
+{
+  "name": "90-s-Inventory-Management-System",
+  "version": "1.0.0",
+  "description": "",
+  "main": "electron/main.js",
+  "scripts": {
+    "electron": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.ims.desktop",
+    "productName": "IMS",
+    "win": {
+      "target": "nsis"
+    },
+    "extraResources": [
+      {
+        "from": "backend",
+        "to": "backend",
+        "filter": [
+          "dist/**/*",
+          "node_modules/**/*",
+          "package.json",
+          ".env"
+        ]
+      }
+    ]
+  },
+  "keywords": [],
+  "author": "Pratik Sharma",
+  "license": "ISC",
+  "packageManager": "pnpm@10.29.3",
+  "devDependencies": {
+    "electron": "28",
+    "electron-builder": "^26.7.0"
+  },
+  "dependencies": {}
+}

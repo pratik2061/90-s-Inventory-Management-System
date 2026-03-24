@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Plus, X, Loader2, Search, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { api } from "@/utils/api/ApiInstance";
@@ -34,7 +34,7 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<SaleItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
-  const [remark, setRemark] = useState("");
+  const [remark] = useState("");
 
   // Fetch items from backend
   const fetchInventory = async () => {

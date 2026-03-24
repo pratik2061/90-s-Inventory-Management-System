@@ -3,7 +3,7 @@ import { Plus, X, Loader2 } from "lucide-react";
 import Modal from "../modal-template/modalTemplate";
 import { api } from "@/utils/api/ApiInstance";
 import toast from "react-hot-toast";
-import type { errorresponse } from "../login/LoginComponent";
+// import type { errorresponse } from "../login/LoginComponent";
 
 interface AddItemModalProps {
   open: boolean;
