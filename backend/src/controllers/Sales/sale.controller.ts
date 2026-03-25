@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../config/prisma";
+import { emailService } from "../../services/email.service";
 
 export const salesController = {
   // Create a new sale
@@ -86,6 +87,11 @@ export const salesController = {
         }
 
         return newSale;
+      });
+
+      // Send notification email asynchronously
+      emailService.sendSaleEmail(sale).catch(err => {
+        console.error("Failed to send sale notification email:", err);
       });
 
       res.status(201).json({

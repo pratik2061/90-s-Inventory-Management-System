@@ -74,14 +74,16 @@ ipcMain.handle("print-receipt", async (event, saleData) => {
         <div class="text-center">
           <h1 style="margin:0;">90's</h1>
           <h2 style="margin:0;">HipHop & Street Wear</h2>
-
-               <div class="divider"></div>
-          <div class="font-sm">TX: ${saleData.id.slice(-8)}</div>
-               <div class="divider"></div>
-          <div class="font-sm">Date: ${new Date().toLocaleString()}</div>
-        </div>
+          <div style="padding-top: 5px; font-size: 10px;">Murgiya, Lumbini gate</div>
+        </div>        
+        <table style="padding-top: 5px; margin: 0; width: 100%;">
+          <tr>
+            <td class="font-sm" align="left">TX: ${saleData.id.slice(-8)}</td>
+            <td class="font-sm" align="right">Date: ${new Date().toLocaleString()}</td>
+          </tr>
+        </table>
         
-        <div class="divider"></div>
+        <div class="divider" style="margin-top: 0;"></div>
         
         <table>
           <thead>
@@ -110,12 +112,6 @@ ipcMain.handle("print-receipt", async (event, saleData) => {
             <td>Subtotal:</td>
             <td align="right">Rs.${(saleData.totalAmount + (saleData.discount || 0))}</td>
           </tr>
-          ${saleData.discount > 0 ? `
-          <tr>
-            <td>Discount:</td>
-            <td align="right">-Rs.${saleData.discount}</td>
-          </tr>
-          ` : ''}
           <tr style="border-top: 1px solid #000;">
             <td class="bold">Total Paid:</td>
             <td class="bold" align="right">Rs.${saleData.totalAmount}</td>

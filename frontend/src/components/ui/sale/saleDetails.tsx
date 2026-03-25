@@ -267,7 +267,7 @@ const SaleDetails: React.FC = () => {
                 </p>
                 {sale.discount > 0 && (
                   <div className="mt-2 text-right">
-                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Discount: Rs {sale.discount.toLocaleString()}</p>
+                    <p className="text-[11px] font-black text-red-500 uppercase tracking-widest mb-1">Discount: Rs {sale.discount.toLocaleString()}</p>
                      <p className="text-xl font-black text-gray-800">
                       Paid: Rs {sale.totalAmount.toLocaleString()}
                     </p>
