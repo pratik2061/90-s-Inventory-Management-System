@@ -388,7 +388,7 @@ const Sales: React.FC = () => {
         </div>
       </footer>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="New Sale Entry">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="New Sale Entry" maxWidth="6xl">
         <SaleCreationForm />
       </Modal>
     </div>

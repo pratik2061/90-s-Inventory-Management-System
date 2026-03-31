@@ -121,3 +121,41 @@
     @apply bg-background text-foreground;
   }
 }
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4b5563; /* gray-600 */
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #1f2937; /* gray-800 */
+  }
+  .custom-scrollbar::-webkit-scrollbar-button:single-button {
+    background-color: transparent;
+    display: block;
+    border-style: solid;
+    height: 12px;
+    width: 10px;
+  }
+  /* Up arrow */
+  .custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:decrement {
+    border-width: 0 5px 8px 5px;
+    border-color: transparent transparent #374151 transparent; /* gray-700 */
+  }
+  .custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:decrement:hover {
+    border-color: transparent transparent #111827 transparent; /* gray-900 */
+  }
+  /* Down arrow */
+  .custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:increment {
+    border-width: 8px 5px 0 5px;
+    border-color: #374151 transparent transparent transparent; /* gray-700 */
+  }
+  .custom-scrollbar::-webkit-scrollbar-button:single-button:vertical:increment:hover {
+    border-color: #111827 transparent transparent transparent; /* gray-900 */
+  }
+}
