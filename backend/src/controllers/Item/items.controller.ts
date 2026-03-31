@@ -118,7 +118,7 @@ export const itemsController = {
       allItems.map((data) => (allQuantity = data.quantity + allQuantity));
 
       if (!searchterm) {
-        res.status(400).json({
+        return res.status(400).json({
           message: "Search term missing",
         });
       }
@@ -126,15 +126,25 @@ export const itemsController = {
       // Use findMany to return a list of matches
       const foundItems = await prisma.item.findMany({
         where: {
-          code: {
-            contains: term,
-            mode: "insensitive",
-          },
+          OR: [
+            {
+              code: {
+                contains: term,
+                mode: "insensitive",
+              },
+            },
+            {
+              name: {
+                contains: term,
+                mode: "insensitive",
+              },
+            },
+          ],
         },
       });
 
       if (foundItems.length === 0) {
-        res.status(404).json({
+        return res.status(404).json({
           message: "No Items found",
           data: [], // Return empty array to keep frontend stable
         });
@@ -178,23 +188,7 @@ export const itemsController = {
         return res.status(400).json({ message: "All fields are required" });
       }
 
-      // 3. THE FIX: Check if code is taken by ANOTHER item
-      const codeTakenByOther = await prisma.item.findFirst({
-        where: {
-          code: code,
-          NOT: {
-            id: String(itemId), // <--- "Don't count the item I am currently editing"
-          },
-        },
-      });
-
-      if (codeTakenByOther) {
-        return res.status(400).json({
-          message: "Error: This code is already assigned to a different item.",
-        });
-      }
-
-      // 4. Perform update
+      // 3. Perform update
       await prisma.item.update({
         where: { id: String(itemId) },
         data: { name, code, price, colors, quantity },

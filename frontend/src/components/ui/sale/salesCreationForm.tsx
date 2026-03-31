@@ -152,8 +152,7 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       (item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.code.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
-    .slice(0, 6); // Show top 6 matches
+    );
 
   return (
     <div className="max-w-4xl mx-auto p-2">
@@ -177,26 +176,28 @@ const SaleCreationForm = ({ onSuccess }: { onSuccess?: () => void }) => {
               />
             </div>
 
-            {/* Quick Select Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {filteredInventory.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => toggleItemSelection(item)}
-                  className="p-3 text-left border border-gray-100 rounded-xl hover:border-amber-400 hover:bg-amber-50 transition-all group relative"
-                >
-                  <div className="font-bold text-gray-800 text-sm truncate">
-                    {item.name}
-                  </div>
-                  <div className="text-[10px] text-gray-400 font-mono tracking-tighter">
-                    {item.code}
-                  </div>
-                  <div className="mt-1 font-bold text-amber-600 text-xs">
-                    Rs.{item.price}
-                  </div>
-                  <Plus className="absolute right-2 bottom-2 size-4 text-gray-300 group-hover:text-amber-500" />
-                </button>
-              ))}
+            {/* Quick Select Grid with Scroll */}
+            <div className="max-h-[320px] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-thumb-amber-200 scrollbar-track-transparent">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {filteredInventory.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => toggleItemSelection(item)}
+                    className="p-3 text-left border border-gray-100 rounded-xl hover:border-amber-400 hover:bg-amber-50 transition-all group relative"
+                  >
+                    <div className="font-bold text-gray-800 text-sm truncate">
+                      {item.name}
+                    </div>
+                    <div className="text-[10px] text-gray-400 font-mono tracking-tighter">
+                      {item.code}
+                    </div>
+                    <div className="mt-1 font-bold text-amber-600 text-xs">
+                      Rs.{item.price}
+                    </div>
+                    <Plus className="absolute right-2 bottom-2 size-4 text-gray-300 group-hover:text-amber-500" />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
