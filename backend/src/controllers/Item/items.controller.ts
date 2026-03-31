@@ -228,4 +228,23 @@ export const itemsController = {
       });
     }
   },
+  listAllItems: async (req: Request, res: Response) => {
+    try {
+      const allItems = await prisma.item.findMany({
+        orderBy: {
+          name: "asc",
+        },
+      });
+
+      return res.status(200).json({
+        message: "All items fetched successfully",
+        data: allItems,
+      });
+    } catch (error) {
+      console.error("Error fetching all items:", error);
+      return res.status(500).json({
+        message: "Internal server error",
+      });
+    }
+  },
 };

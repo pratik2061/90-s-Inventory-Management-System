@@ -103,7 +103,7 @@ const SaleDetails: React.FC = () => {
 
   const fetchInventory = async () => {
     try {
-      const response = await api.get("/item/all");
+      const response = await api.get("/item/list-all");
       setAvailableItems(response.data.data || response.data);
     } catch (error) {
       toast.error("Failed to load items");

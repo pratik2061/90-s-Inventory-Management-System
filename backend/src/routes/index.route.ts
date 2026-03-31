@@ -23,6 +23,7 @@ route.use(checkJwt);
 
 //Item routes
 route.get("/item/all", itemsController.getAllItems);
+route.get("/item/list-all", itemsController.listAllItems);
 route.post("/item/add", itemsController.addItems);
 route.get("/item/search", itemsController.searchItem);
 route.get("/item/:id", itemsController.getOneItem);
