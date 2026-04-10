@@ -53,6 +53,24 @@ const Sales: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
+
+  // Reset page to 1 when search query changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchQuery]);
 
   const fetchSales = async () => {
     try {
@@ -63,12 +81,14 @@ const Sales: React.FC = () => {
           limit,
           startDate: startDate || undefined,
           endDate: endDate || undefined,
+          search: debouncedSearchQuery || undefined,
         },
       });
       const { data, totalSales, pagination: pagData } = response.data;
       setSales(data || []);
       setTotalRevenue(totalSales || 0);
       setTotalPages(pagData?.totalPages || 1);
+      setTotalRecords(pagData?.totalCount || 0);
     } catch (error: any) {
       toast.error(`${error.response?.data?.message || "Error fetching sales"}`);
     } finally {
@@ -78,12 +98,7 @@ const Sales: React.FC = () => {
 
   useEffect(() => {
     fetchSales();
-  }, [page, limit, startDate, endDate]);
-
-  const filteredSales = sales.filter(
-    (sale) =>
-      sale.id.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  }, [page, limit, startDate, endDate, debouncedSearchQuery]);
 
   return (
     <div className="min-h-screen bg-[#f8faf9] p-4 md:p-8 text-[#1f2937] flex-1 w-full animate-in fade-in duration-500">
@@ -182,7 +197,7 @@ const Sales: React.FC = () => {
           <div className="flex items-center gap-3">
             <h3 className="text-xl font-black text-[#1f2937]">Transaction Logs</h3>
             <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-[10px] font-black uppercase tracking-widest">
-              {filteredSales.length} Records
+              {totalRecords} Records
             </span>
           </div>
           <div className="relative group w-full md:w-80">
@@ -213,7 +228,7 @@ const Sales: React.FC = () => {
             <tbody className="text-sm font-medium">
               {loading ? (
                 <TableSkeleton columns={6} rows={5} />
-              ) : filteredSales.length === 0 ? (
+              ) : sales.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-20 text-center text-gray-400">
                     <ShoppingCart className="size-12 mx-auto mb-4 opacity-10" />
@@ -221,7 +236,7 @@ const Sales: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredSales.map((sale) => (
+                sales.map((sale) => (
                   <tr
                     key={sale.id}
                     onClick={() => navigate(`/sales/${sale.id}`)}
@@ -280,10 +295,10 @@ const Sales: React.FC = () => {
               <CardSkeleton />
               <CardSkeleton />
             </>
-          ) : filteredSales.length === 0 ? (
+          ) : sales.length === 0 ? (
             <div className="text-center py-10 text-gray-400">No records.</div>
           ) : (
-            filteredSales.map((sale) => (
+            sales.map((sale) => (
               <div
                 key={sale.id}
                 onClick={() => navigate(`/sales/${sale.id}`)}

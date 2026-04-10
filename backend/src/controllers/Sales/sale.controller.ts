@@ -114,6 +114,7 @@ export const salesController = {
         endDate,
         customerId,
         paymentMode,
+        search,
       } = req.query;
 
       const skip = (Number(page) - 1) * Number(limit);
@@ -129,6 +130,31 @@ export const salesController = {
 
       if (customerId) where.customerId = customerId;
       if (paymentMode) where.paymentMode = paymentMode;
+
+      if (search) {
+        where.OR = [
+          {
+            customer: {
+              name: { contains: String(search), mode: "insensitive" },
+            },
+          },
+          {
+            items: {
+              some: {
+                item: {
+                  OR: [
+                    { name: { contains: String(search), mode: "insensitive" } },
+                    { code: { contains: String(search), mode: "insensitive" } },
+                  ],
+                },
+              },
+            },
+          },
+          {
+            id: { contains: String(search), mode: "insensitive" },
+          },
+        ];
+      }
 
       const [sales, totalCount] = await Promise.all([
         prisma.sale.findMany({
